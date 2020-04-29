@@ -16,6 +16,7 @@ namespace MOHPDClient
         public MOHPDClient()
         {
             EventHandlers["onClientResourceStart"] += new Action<string>(OnClientResourceStart);
+            EventHandlers["CL:Inmelden"] += new Action<string>(Inmelden);
             Tick += OnTick;
         }
         
@@ -23,6 +24,20 @@ namespace MOHPDClient
         {
             if (GetCurrentResourceName() != resourceName) return;
             
+            RegisterCommand("inmelden", new Action<int, List<object>, string>((source, args, raw) =>
+            {
+                TriggerServerEvent("SV:Inmelden", GetPlayerFromServerId(source));
+                TriggerEvent("CL:Inmelden", GetPlayerFromServerId(source));
+            }), false);
+        }
+
+        private async Task OnTick()
+        {
+            await Delay(100);
+        }
+        
+        private void Inmelden(string resourceName)
+        {
             RegisterCommand("stcallout", new Action<int, List<object>, string>((source, args, raw) =>
             {
                 TriggerServerEvent("SV:Callout", GetPlayerFromServerId(source));
@@ -32,11 +47,6 @@ namespace MOHPDClient
             {
                 TriggerServerEvent("SV:VTB", GetPlayerFromServerId(source));
             }), false);
-        }
-
-        private async Task OnTick()
-        {
-            await Delay(100);
         }
         
     }

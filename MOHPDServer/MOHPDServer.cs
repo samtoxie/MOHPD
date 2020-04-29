@@ -6,26 +6,52 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MOHPDServer.Callouts;
+using MOHPDServer.Data;
 
 namespace MOHPDServer
 {
     public class MOHPDServer : BaseScript
     {
+        private static PoliceDAO policeDao = new PoliceDAO();
+        private static int[] dispatchColors = new[] {52, 113, 235};
+        private static string dispatchText = "[Meldkamer POL]";
         public MOHPDServer()
         {
+            EventHandlers["SV:Inmelden"] += new Action<Player>(SvInmelden);
             EventHandlers["SV:Callout"] += new Action<Player>(SvCallout);
             EventHandlers["SV:VTB"] += new Action<Player>(SvVTB);
+            EventHandlers["playerDropped"] += new Action<Player, string>(OnPlayerDropped);
             Tick += OnTick;
         }
 
-        // Create a function to handle the event somewhere else in your code, or use a lambda.
-        private void SvCallout([FromSource] Player source)
+        private void SvInmelden([FromSource] Player player)
         {
-            foreach (var player in Players)
+            if (policeDao.Contains(player))
             {
                 player.TriggerEvent("chat:addMessage", new
                 {
-                    color = new[] { 255, 0, 0 },
+                    color = dispatchColors ,
+                    args = new[] { dispatchText, "U bent reeds ingemeld!" }
+                });
+            }
+            else
+            {
+                policeDao.Add(player);
+                player.TriggerEvent("chat:addMessage", new
+                {
+                    color = dispatchColors,
+                    args = new[] { dispatchText, "U bent succesvol ingemeld, fijne dienst!" }
+                });
+            }
+        }
+        
+        private void SvCallout([FromSource] Player source)
+        {
+            foreach (var player in policeDao)
+            {
+                player.TriggerEvent("chat:addMessage", new
+                {
+                    color = dispatchColors,
                     args = new[] { "[StCallouts]", "je kanker moeder" }
                 });
             }
@@ -38,14 +64,19 @@ namespace MOHPDServer
         private void SvVTB([FromSource] Player source)
         {
             Callout newCallout = new VTB();
-            foreach (var player in Players)
+            foreach (var player in policeDao)
             {
                 player.TriggerEvent("chat:addMessage", new
                 {
-                    color = new[] { 52, 113, 235 },
-                    args = new[] { "[Meldkamer POL]", newCallout.GetCalloutNotification() }
+                    color = dispatchColors,
+                    args = new[] { dispatchText, newCallout.GetCalloutNotification() }
                 });
             }
+        }
+        
+        private void OnPlayerDropped([FromSource]Player player, string reason)
+        {
+            if(policeDao.Contains(player)) policeDao.Remove(player);
         }
     }
 }

@@ -26,6 +26,11 @@ namespace MOHPDServer.Callouts
             postalTo = randomPostal();
         }
 
+        /// <summary>
+        /// used to generate a random postal, it also checks if the postal isn't already used. If it is it will generate
+        /// a new random postal.
+        /// </summary>
+        /// <returns>returns an index in validPostals</returns>
         private int randomPostal()
         {
             Random rnd = new Random();
@@ -51,10 +56,14 @@ namespace MOHPDServer.Callouts
             throw new System.NotImplementedException();
         }
 
+        /// <summary>
+        /// Gives back the callout information, kinda like a ToString
+        /// </summary>
+        /// <returns>string calloutNotification</returns>
         public override string GetCalloutNotification()
         {
-            return String.Format("Melding: {0} | Van: {1}-{2} | Naar: {3}-{4} | {5}-{6}", name, validPostals[postalFrom],
-                validPostalsName[postalFrom], validPostals[postalTo], validPostalsName[postalTo], postalFrom, postalTo);
+            return String.Format("Melding: {0} | Van: {1} {2} | Naar: {3} {4}", name, validPostals[postalFrom],
+                validPostalsName[postalFrom], validPostals[postalTo], validPostalsName[postalTo]);
         }
     }
 }

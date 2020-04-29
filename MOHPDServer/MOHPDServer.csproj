@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="Callouts\Callout.cs" />
     <Compile Include="Callouts\VTB.cs" />
+    <Compile Include="Data\PoliceDAO.cs" />
     <Compile Include="MOHPDServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
