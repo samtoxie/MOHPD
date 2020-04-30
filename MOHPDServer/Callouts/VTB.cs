@@ -12,15 +12,15 @@ namespace MOHPDServer.Callouts
         
         public VTB() : base()
         {
-            this.name = "VTB";
+            this.name = "Ambulance Transport";
             this.validPostals = new int[]
-                {5145, 7039, 4023, 3224, 5008, 6020, 5153, 628, 7061, 913, 816, 702, 0, 7054, 2010, 3706, 802, 0};
+                {5145, 7039, 4023, 3224, 5008, 6020, 5153, 628, 7061, 913, 816, 702, 7054, 2010, 3706, 802, 0};
             this.validPostalsName = new string[]
             {
-                "OLVG-West", "Amsterdam UMC", "Centraal Ziekenhuis", "Academisch MC",
-                "Slotervaart MC", "OLVG-Oost", "CZ Polikliniek", "Noorderziekenhuis", "GGZ Crisisopvang", "NWZ-Den Helder",
-                "NWZ-Alkmaar", "Bijlmerbajes", "Militair Hospitaal", "GGD Noord", "Schiphol Airport",
-                "Marinehaven", "Luchthaven Alkmaar", "Maritiem Vliegkamp De Kooy"
+                "Our Lovely Women Guesthouse", "University Hospital", "LS Medical Center", "Academic Hospital",
+                "Ditchspeed MC", "Our Lovely Women Guesthome", "LSMC Policlinic", "Nothern Hospital", "Autismhelpdesk", "Pallet Town Hospital",
+                "Lakeshore Hospital", "Fort Knox", "LSMC North", "Schiphol Airport",
+                "LS Harbour", "Lakeshore Airfield", "Military Airfield"
             };
             postalFrom = randomPostal();
             postalTo = randomPostal();
@@ -62,7 +62,7 @@ namespace MOHPDServer.Callouts
         /// <returns>string calloutNotification</returns>
         public override string GetCalloutNotification()
         {
-            return String.Format("Melding: {0} | Van: {1} {2} | Naar: {3} {4}", name, validPostals[postalFrom],
+            return String.Format("Callout: {0} | From: {1} {2} | Towards: {3} {4}", name, validPostals[postalFrom],
                 validPostalsName[postalFrom], validPostals[postalTo], validPostalsName[postalTo]);
         }
     }

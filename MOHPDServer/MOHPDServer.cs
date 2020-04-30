@@ -14,7 +14,7 @@ namespace MOHPDServer
     {
         private static PoliceDAO policeDao = new PoliceDAO();
         private static int[] dispatchColors = new[] {52, 113, 235};
-        private static string dispatchText = "[Meldkamer POL]";
+        private static string dispatchText = "[Dispatch]";
         public MOHPDServer()
         {
             EventHandlers["SV:Inmelden"] += new Action<Player>(SvInmelden);
@@ -31,7 +31,7 @@ namespace MOHPDServer
                 player.TriggerEvent("chat:addMessage", new
                 {
                     color = dispatchColors ,
-                    args = new[] { dispatchText, "U bent reeds ingemeld!" }
+                    args = new[] { dispatchText, "You are already on duty!" }
                 });
             }
             else
@@ -40,7 +40,7 @@ namespace MOHPDServer
                 player.TriggerEvent("chat:addMessage", new
                 {
                     color = dispatchColors,
-                    args = new[] { dispatchText, "U bent succesvol ingemeld, fijne dienst!" }
+                    args = new[] { dispatchText, "You are now on duty, stay safe!" }
                 });
             }
         }
@@ -52,7 +52,7 @@ namespace MOHPDServer
                 player.TriggerEvent("chat:addMessage", new
                 {
                     color = dispatchColors,
-                    args = new[] { "[StCallouts]", "je kanker moeder" }
+                    args = new[] { "[StCallouts]", "your cancer mother" }
                 });
             }
         }

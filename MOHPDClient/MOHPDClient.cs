@@ -24,7 +24,7 @@ namespace MOHPDClient
         {
             if (GetCurrentResourceName() != resourceName) return;
             
-            RegisterCommand("inmelden", new Action<int, List<object>, string>((source, args, raw) =>
+            RegisterCommand("onduty", new Action<int, List<object>, string>((source, args, raw) =>
             {
                 TriggerServerEvent("SV:Inmelden", GetPlayerFromServerId(source));
                 TriggerEvent("CL:Inmelden", GetPlayerFromServerId(source));
@@ -43,7 +43,7 @@ namespace MOHPDClient
                 TriggerServerEvent("SV:Callout", GetPlayerFromServerId(source));
             }), false);
             
-            RegisterCommand("VTB", new Action<int, List<object>, string>((source, args, raw) =>
+            RegisterCommand("transport", new Action<int, List<object>, string>((source, args, raw) =>
             {
                 TriggerServerEvent("SV:VTB", GetPlayerFromServerId(source));
             }), false);
