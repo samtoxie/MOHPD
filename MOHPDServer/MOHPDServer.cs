@@ -13,15 +13,22 @@ namespace MOHPDServer
     public class MOHPDServer : BaseScript
     {
         private static PoliceDAO policeDao = new PoliceDAO();
-        private static int[] dispatchColors = new[] {52, 113, 235};
+        public static int[] dispatchColors = new[] {52, 113, 235};
         private static string dispatchText = "[Meldkamer POL]";
         public MOHPDServer()
         {
             EventHandlers["SV:Inmelden"] += new Action<Player>(SvInmelden);
             EventHandlers["SV:Callout"] += new Action<Player>(SvCallout);
             EventHandlers["SV:VTB"] += new Action<Player>(SvVTB);
+            EventHandlers["SV:FluitjePls"] += new Action<Player>(SvFluitjePls);
+            EventHandlers["SV:Discord"] += new Action<Player>(SvDiscord);
             EventHandlers["playerDropped"] += new Action<Player, string>(OnPlayerDropped);
             Tick += OnTick;
+        }
+
+        private void SvFluitjePls([FromSource] Player player)
+        {
+            TriggerEvent("Server:SoundToRadius", player.Character.NetworkId , 50.0f, "fluit", 0.5f);
         }
 
         private void SvInmelden([FromSource] Player player)
@@ -72,6 +79,15 @@ namespace MOHPDServer
                     args = new[] { dispatchText, newCallout.GetCalloutNotification() }
                 });
             }
+        }
+        
+        private void SvDiscord([FromSource] Player source)
+        {
+            source.TriggerEvent("chat:addMessage", new
+            {
+                color =dispatchColors ,
+                args = new[] { "Discord: ", "https://discord.gg/WTBWBNv" }
+            });
         }
         
         private void OnPlayerDropped([FromSource]Player player, string reason)

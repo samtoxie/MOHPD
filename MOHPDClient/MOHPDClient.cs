@@ -29,10 +29,16 @@ namespace MOHPDClient
                 TriggerServerEvent("SV:Inmelden", GetPlayerFromServerId(source));
                 TriggerEvent("CL:Inmelden", GetPlayerFromServerId(source));
             }), false);
+            
+            RegisterCommand("discord", new Action<int, List<object>, string>((source, args, raw) =>
+            {
+                TriggerServerEvent("SV:Discord", GetPlayerFromServerId(source));
+            }), false);
         }
 
         private async Task OnTick()
         {
+            if(IsControlPressed(1,48)) TriggerServerEvent("SV:FluitjePls");
             await Delay(100);
         }
         
