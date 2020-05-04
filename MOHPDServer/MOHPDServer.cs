@@ -78,6 +78,7 @@ namespace MOHPDServer
                     color = dispatchColors,
                     args = new[] { dispatchText, newCallout.GetCalloutNotification() }
                 });
+                TriggerEvent("Server:SoundToClient", player.Character.NetworkId, "meldingVTB", 1.0f);
             }
         }
         
