@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using CitizenFX.Core.Native;
+using CitizenFX.Core.UI;
 using MenuAPI;
 using static CitizenFX.Core.Native.API;
 
@@ -12,14 +13,14 @@ namespace MOHPDClient
 {
     public class MOHPDClient : BaseScript
     {
+        private readonly string TEAMHOOFDWEGENRP = "TeamHoofdWegenRP";
+        private readonly string MELDING = "Melding";
+        private readonly string GIERIGENARROGANT = "Gierig en arrogant";
+        
         private String config = Function.Call<String>(Hash.LOAD_RESOURCE_FILE, "MOHPD", "config.ini");
-        private String configLine;
-        private ArrayList vehicleNames;
         private ArrayList vehicleModels;
         private ArrayList vehicles;
-        private StringReader strReader;
-
-
+        
         Menu menu = new Menu("TeamHoofdwegenRP","Gierig en Arrogant");
         MenuItem inmelden = new MenuItem("Inmelden","Gierig en Arrogant");
         MenuItem discord = new MenuItem("Discord", "Link naar de TeamHoofdwegenRP Discord.");
@@ -29,15 +30,16 @@ namespace MOHPDClient
         Menu calloutsMenu = new Menu("Meldingen", "Gierig en Arrogant");
         MenuItem startVTB = new MenuItem("VTB");
         
-        Menu voertuigenMenu = new Menu("Voertuigen");
+        Menu voertuigenMenu = new Menu("Voertuigen", "Gierig en Arrogant");
 
 
         public MOHPDClient()
         {
             EventHandlers["onClientResourceStart"] += new Action<string>(OnClientResourceStart);
             EventHandlers["CL:Inmelden"] += new Action<string>(Inmelden);
-            strReader = new StringReader(config);
-            vehicleNames = new ArrayList();
+            EventHandlers["CL:Notify"] += new Action<string,string, string>(Notify);
+
+            
             vehicleModels = new ArrayList();
             vehicles = new ArrayList();
             LoadConfig();
@@ -95,7 +97,8 @@ namespace MOHPDClient
 
         private void LoadConfig()
         {
-            configLine = strReader.ReadLine();
+            StringReader strReader = new StringReader(config);
+            String configLine = strReader.ReadLine();
             if(configLine != null && configLine == "<vehicles>")
             {
                 while(true)
@@ -106,7 +109,6 @@ namespace MOHPDClient
                         return;
                     }
                     String[] strlist = configLine.Split(':');
-                    vehicleNames.Add(strlist[0]);
                     vehicleModels.Add(strlist[1]);
                     vehicles.Add(new MenuItem(strlist[0]));
                 }
@@ -116,17 +118,7 @@ namespace MOHPDClient
         private void OnClientResourceStart(string resourceName)
         {
             if (GetCurrentResourceName() != resourceName) return;
-            
-            RegisterCommand("inmelden", new Action<int, List<object>, string>((source, args, raw) =>
-            {
-                TriggerServerEvent("SV:Inmelden", GetPlayerFromServerId(source));
-                TriggerEvent("CL:Inmelden", GetPlayerFromServerId(source));
-            }), false);
-            
-            RegisterCommand("discord", new Action<int, List<object>, string>((source, args, raw) =>
-            {
-                TriggerServerEvent("SV:Discord", GetPlayerFromServerId(source));
-            }), false);
+
         }
 
         private async Task OnTick()
@@ -143,11 +135,7 @@ namespace MOHPDClient
             var hash = (uint) GetHashKey(model);
             if (!IsModelInCdimage(hash) || !IsModelAVehicle(hash))
             {
-                TriggerEvent("chat:addMessage", new 
-                {
-                    color = new[] { 255, 0, 0 },
-                    args = new[] { "[TeamHoofdwegenRP]", $"It might have been a good thing that you tried to spawn a {model}. Who even wants their spawning to actually ^*succeed?" }
-                });
+                Notify("Oeps! Dit voertuig bestaat helaas niet!",TEAMHOOFDWEGENRP,GIERIGENARROGANT);
                 return;
             }
 
@@ -174,11 +162,19 @@ namespace MOHPDClient
             {
                 TriggerServerEvent("SV:Callout", GetPlayerFromServerId(source));
             }), false);
-            
-            RegisterCommand("VTB", new Action<int, List<object>, string>((source, args, raw) =>
-            {
-                TriggerServerEvent("SV:VTB", GetPlayerFromServerId(source));
-            }), false);
+            // RegisterCommand("VTB", new Action<int, List<object>, string>((source, args, raw) =>
+            // {
+            //     TriggerServerEvent("SV:VTB", GetPlayerFromServerId(source));
+            //     
+            // }), false);
+        }
+
+        private void Notify(string message, string title, string subtitle)
+        {
+            SetNotificationTextEntry("STRING");
+            AddTextComponentString(message);
+            SetNotificationMessage("CHAR_CALL911", "CHAR_CALL911", false, 0, title, subtitle);
+            DrawNotification(true, false);
         }
     }
 }

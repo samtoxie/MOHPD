@@ -12,6 +12,12 @@ namespace MOHPDServer
 {
     public class MOHPDServer : BaseScript
     {
+        private readonly string TEAMHOOFDWEGENRP = "TeamHoofdWegenRP";
+        private readonly string MELDING = "Melding";
+        private readonly string GIERIGENARROGANT = "Gierig en arrogant";
+        private readonly string MELDING_VTB = "Melding: VTB";
+        
+        
         private static PoliceDAO policeDao = new PoliceDAO();
         public static int[] dispatchColors = new[] {52, 113, 235};
         private static string dispatchText = "[Meldkamer POL]";
@@ -35,20 +41,12 @@ namespace MOHPDServer
         {
             if (policeDao.Contains(player))
             {
-                player.TriggerEvent("chat:addMessage", new
-                {
-                    color = dispatchColors ,
-                    args = new[] { dispatchText, "U bent reeds ingemeld!" }
-                });
+                player.TriggerEvent("CL:Notify","U bent reeds ingemeld!",$"~r~{TEAMHOOFDWEGENRP}",GIERIGENARROGANT);
             }
             else
             {
                 policeDao.Add(player);
-                player.TriggerEvent("chat:addMessage", new
-                {
-                    color = dispatchColors,
-                    args = new[] { dispatchText, "U bent succesvol ingemeld, fijne dienst!" }
-                });
+                player.TriggerEvent("CL:Notify","U bent succesvol ingemeld, fijne dienst!",$"~b~{TEAMHOOFDWEGENRP}",GIERIGENARROGANT);
             }
         }
         
@@ -56,11 +54,7 @@ namespace MOHPDServer
         {
             foreach (var player in policeDao)
             {
-                player.TriggerEvent("chat:addMessage", new
-                {
-                    color = dispatchColors,
-                    args = new[] { "[StCallouts]", "je kanker moeder" }
-                });
+                player.TriggerEvent("CL:Notify","je kanker moeder",$"~r~{TEAMHOOFDWEGENRP}",GIERIGENARROGANT);
             }
         }
         private async Task OnTick()
@@ -73,22 +67,14 @@ namespace MOHPDServer
             Callout newCallout = new VTB();
             foreach (var player in policeDao)
             {
-                player.TriggerEvent("chat:addMessage", new
-                {
-                    color = dispatchColors,
-                    args = new[] { dispatchText, newCallout.GetCalloutNotification() }
-                });
+                player.TriggerEvent("CL:Notify",newCallout.GetCalloutNotification(),MELDING_VTB,TEAMHOOFDWEGENRP);
                 TriggerEvent("Server:SoundToClient", player.Character.NetworkId, "meldingVTB", 1.0f);
             }
         }
         
         private void SvDiscord([FromSource] Player source)
         {
-            source.TriggerEvent("chat:addMessage", new
-            {
-                color =dispatchColors ,
-                args = new[] { "Discord: ", "https://discord.gg/WTBWBNv" }
-            });
+            source.TriggerEvent("CL:Notify","~b~Discord: ~w~https://discord.gg/WTBWBNv",$"~b~{TEAMHOOFDWEGENRP}",GIERIGENARROGANT);
         }
         
         private void OnPlayerDropped([FromSource]Player player, string reason)
