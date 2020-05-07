@@ -73,7 +73,7 @@ namespace MOHPDServer.Callouts
                 {
                     configLine = strReader.ReadLine();
                 }
-
+                configLine = strReader.ReadLine();
                 while (!configLine.Equals("</hospitals>"))
                 {
                     locations.Add(configLine);

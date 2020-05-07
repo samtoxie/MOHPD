@@ -38,8 +38,8 @@ namespace MOHPDClient
             EventHandlers["onClientResourceStart"] += new Action<string>(OnClientResourceStart);
             EventHandlers["CL:Inmelden"] += new Action<string>(Inmelden);
             EventHandlers["CL:Notify"] += new Action<string,string, string>(Notify);
+            EventHandlers["CL:PlaySound"] += new Action<string, double>(playSound);
 
-            
             vehicleModels = new ArrayList();
             vehicles = new ArrayList();
             LoadConfig();
@@ -140,6 +140,14 @@ namespace MOHPDClient
             }
 
             // create the vehicle
+            try
+            {
+                Game.PlayerPed.CurrentVehicle.Delete();
+            }
+            catch (Exception e)
+            {
+                
+            }
             var vehicle = await World.CreateVehicle(model, Game.PlayerPed.Position, Game.PlayerPed.Heading);
     
             // set the player ped into the vehicle and driver seat
@@ -162,11 +170,6 @@ namespace MOHPDClient
             {
                 TriggerServerEvent("SV:Callout", GetPlayerFromServerId(source));
             }), false);
-            // RegisterCommand("VTB", new Action<int, List<object>, string>((source, args, raw) =>
-            // {
-            //     TriggerServerEvent("SV:VTB", GetPlayerFromServerId(source));
-            //     
-            // }), false);
         }
 
         private void Notify(string message, string title, string subtitle)
@@ -175,6 +178,11 @@ namespace MOHPDClient
             AddTextComponentString(message);
             SetNotificationMessage("CHAR_CALL911", "CHAR_CALL911", false, 0, title, subtitle);
             DrawNotification(true, false);
+        }
+
+        private void playSound(string file, double vol)
+        {
+            TriggerEvent("Client:SoundToClient",  file, vol);
         }
     }
 }

@@ -68,7 +68,7 @@ namespace MOHPDServer
             foreach (var player in policeDao)
             {
                 player.TriggerEvent("CL:Notify",newCallout.GetCalloutNotification(),MELDING_VTB,TEAMHOOFDWEGENRP);
-                TriggerEvent("Server:SoundToClient", player.Character.NetworkId, "meldingVTB", 1.0f);
+                player.TriggerEvent("CL:PlaySound","meldingVTB", 1.0f);
             }
         }
         
