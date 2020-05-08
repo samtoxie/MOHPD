@@ -1,6 +1,7 @@
 ﻿using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,9 +17,14 @@ namespace MOHPDServer
         private readonly string MELDING = "Melding";
         private readonly string GIERIGENARROGANT = "Gul en Vredelievend";
         private readonly string MELDING_VTB = "Melding: VTB";
+        private readonly List<string>DISCIPLINES = new List<string>() {"Politie", "Marechaussee", "Brandweer", "Ambulance"};
 
+        
+        private static ArrayList polRepository = new ArrayList();
+        private static ArrayList kmarRepository = new ArrayList();
+        private static ArrayList brwRepository = new ArrayList();
+        private static ArrayList ambuRepository = new ArrayList();
 
-        private static PoliceDAO policeDao = new PoliceDAO();
         public static int[] dispatchColors = new[] {52, 113, 235};
         private static string dispatchText = "[Meldkamer POL]";
         private Vector3 mostRecentNoodknop;
@@ -26,13 +32,13 @@ namespace MOHPDServer
 
         public MOHPDServer()
         {
-            EventHandlers["SV:Inmelden"] += new Action<Player>(SvInmelden);
-            EventHandlers["SV:Callout"] += new Action<Player>(SvCallout);
+            EventHandlers["SV:Inmelden"] += new Action<Player, int>(SvInmelden);
             EventHandlers["SV:VTB"] += new Action<Player>(SvVTB);
             EventHandlers["SV:FluitjePls"] += new Action<Player>(SvFluitjePls);
             EventHandlers["SV:Discord"] += new Action<Player>(SvDiscord);
             EventHandlers["SV:NoodknopIngedrukt"] += new Action<Player, Vector3>(SvNoodknopIngedrukt);
             EventHandlers["SV:GetNoodknopIngedrukt"] += new Action<Player, string>(SvGetNoodknopIngedrukt);
+            EventHandlers["SV:Backup"] += new Action<Player,int,int>(SvBackup);
             EventHandlers["playerDropped"] += new Action<Player, string>(OnPlayerDropped);
             Tick += OnTick;
         }
@@ -42,25 +48,58 @@ namespace MOHPDServer
             TriggerEvent("Server:SoundToRadius", player.Character.NetworkId, 50.0f, "fluit", 0.5f);
         }
 
-        private void SvInmelden([FromSource] Player player)
+        private void SvInmelden([FromSource] Player player, int service)
         {
-            if (policeDao.Contains(player))
+            switch (service)
             {
-                player.TriggerEvent("CL:Notify", "U bent reeds ingemeld!", $"~r~{TEAMHOOFDWEGENRP}", GIERIGENARROGANT);
-            }
-            else
-            {
-                policeDao.Add(player);
-                player.TriggerEvent("CL:Notify", "U bent succesvol ingemeld, fijne dienst!", $"~b~{TEAMHOOFDWEGENRP}",
-                    GIERIGENARROGANT);
-            }
-        }
-
-        private void SvCallout([FromSource] Player source)
-        {
-            foreach (var player in policeDao)
-            {
-                player.TriggerEvent("CL:Notify", "je kanker moeder", $"~r~{TEAMHOOFDWEGENRP}", GIERIGENARROGANT);
+                case 0:
+                    if (polRepository.Contains(player))
+                    {
+                        player.TriggerEvent("CL:Notify", "U bent reeds ingemeld!", $"~r~{TEAMHOOFDWEGENRP}", GIERIGENARROGANT);
+                    }
+                    else
+                    {
+                        polRepository.Add(player);
+                        player.TriggerEvent("CL:Notify", "U bent succesvol ingemeld, fijne dienst!", $"~b~{TEAMHOOFDWEGENRP}",
+                            GIERIGENARROGANT);
+                    }
+                    break;
+                case 1:
+                    if (kmarRepository.Contains(player))
+                    {
+                        player.TriggerEvent("CL:Notify", "U bent reeds ingemeld!", $"~r~{TEAMHOOFDWEGENRP}", GIERIGENARROGANT);
+                    }
+                    else
+                    {
+                        kmarRepository.Add(player);
+                        player.TriggerEvent("CL:Notify", "U bent succesvol ingemeld, fijne dienst!", $"~b~{TEAMHOOFDWEGENRP}",
+                            GIERIGENARROGANT);
+                    }             
+                    break;
+                case 2:
+                    if (brwRepository.Contains(player))
+                    {
+                        player.TriggerEvent("CL:Notify", "U bent reeds ingemeld!", $"~r~{TEAMHOOFDWEGENRP}", GIERIGENARROGANT);
+                    }
+                    else
+                    {
+                        brwRepository.Add(player);
+                        player.TriggerEvent("CL:Notify", "U bent succesvol ingemeld, fijne dienst!", $"~b~{TEAMHOOFDWEGENRP}",
+                            GIERIGENARROGANT);
+                    }         
+                    break;
+                case 3:   
+                    if (ambuRepository.Contains(player))
+                    {
+                        player.TriggerEvent("CL:Notify", "U bent reeds ingemeld!", $"~r~{TEAMHOOFDWEGENRP}", GIERIGENARROGANT);
+                    }
+                    else
+                    {
+                        ambuRepository.Add(player);
+                        player.TriggerEvent("CL:Notify", "U bent succesvol ingemeld, fijne dienst!", $"~b~{TEAMHOOFDWEGENRP}",
+                            GIERIGENARROGANT);
+                    }
+                    break;
             }
         }
 
@@ -72,7 +111,7 @@ namespace MOHPDServer
         private void SvVTB([FromSource] Player source)
         {
             Callout newCallout = new VTB();
-            foreach (var player in policeDao)
+            foreach (Player player in polRepository)
             {
                 player.TriggerEvent("CL:Notify", newCallout.GetCalloutNotification(), MELDING_VTB, TEAMHOOFDWEGENRP);
                 player.TriggerEvent("CL:PlaySound", "meldingVTB", 1.0f);
@@ -85,18 +124,107 @@ namespace MOHPDServer
                 GIERIGENARROGANT);
         }
 
+        private void SvBackup([FromSource] Player source, int gevraagdeDienst, int prioriteit)
+        {
+            int vragendeDienst = 4;
+            if (polRepository.Contains(source)) vragendeDienst = 0;
+            else if (kmarRepository.Contains(source)) vragendeDienst = 1;
+            else if (brwRepository.Contains(source)) vragendeDienst = 2;
+            else if (ambuRepository.Contains(source)) vragendeDienst = 3;
+
+            bool zelfdeDienst = gevraagdeDienst == vragendeDienst;
+            string message;
+            string meldkamer = $"MK {DISCIPLINES[gevraagdeDienst]}";
+            string prio;
+
+            if (zelfdeDienst)
+            {
+                prio = $"P{prioriteit} Assistentie Collega";
+                message = $"Collega '{source.Name}' vraagt om assistentie van een collega met prioriteit {prioriteit}";
+            }
+            else
+            {
+                prio = $"P{prioriteit} Assistentie {DISCIPLINES[vragendeDienst]}";
+                message = $"De ${DISCIPLINES[vragendeDienst]} vraagt om assistentie van de {DISCIPLINES[gevraagdeDienst]} met prioriteit {prioriteit}, graag aanrijden naar ${source.Name}.";
+            }
+            switch (gevraagdeDienst)
+            {
+                case 0:
+                    foreach (Player player in polRepository)
+                    {
+                        if (!player.Equals(source))
+                        {
+                            player.TriggerEvent("CL:Notify", message, meldkamer, prio);
+                        }
+                    }
+                    break;
+                case 1:
+                    foreach (Player player in kmarRepository)
+                    {
+                        if (!player.Equals(source))
+                        {
+                            player.TriggerEvent("CL:Notify", message, meldkamer, prio);
+                        }
+                    }
+                    break;
+                case 2:
+                    foreach (Player player in brwRepository)
+                    {
+                        if (!player.Equals(source))
+                        {
+                            player.TriggerEvent("CL:Notify", message, meldkamer, prio);
+                        }
+                    }
+                    break;
+                case 3:
+                    foreach (Player player in ambuRepository)
+                    {
+                        if (!player.Equals(source))
+                        {
+                            player.TriggerEvent("CL:Notify", message, meldkamer, prio);
+                        }
+                    }
+                    break;
+            }
+            string temp = zelfdeDienst ? "collega's" : "eenheden";
+            source.TriggerEvent("CL:Notify",
+                $"De {temp} zijn gealarmeerd naar jouw locatie!",
+                meldkamer, prio);
+        }
+        
         private void SvNoodknopIngedrukt([FromSource] Player source, Vector3 pos)
         {
             mostRecentNoodknop = pos;
             mostRecentNoodknopTime = DateTime.UtcNow;
-            foreach (var player in policeDao)
+            string message = " ";
+            string meldkamer = " ";
+
+            if (!polRepository.Contains(source))
+            {
+                message = "~r~Noodknop POL ingedrukt~n~~s~Gebruik /noodknop om de gps in te stellen!";
+                meldkamer = "Meldkamer POL";
+            }
+            else if (!kmarRepository.Contains(source))
+            {
+                message = "~r~Noodknop KMAR ingedrukt~n~~s~Gebruik /noodknop om de gps in te stellen!"; 
+                meldkamer = "Meldkamer KMAR";
+            }
+
+            foreach (Player player in polRepository)
             {
                 if (!player.Equals(source))
                 {
                     player.TriggerEvent("CL:PlaySound", "panicButton", 1.0f);
-                    player.TriggerEvent("CL:Notify",
-                        "~r~Noodknop ingedrukt~n~~w~Gebruik /noodknop om de gps in te stellen!",
-                        "Assistentie Collega", TEAMHOOFDWEGENRP);
+                    player.TriggerEvent("CL:Notify", message, "Assistentie Collega", meldkamer);
+                }
+            }
+            foreach (Player player in kmarRepository)
+            {
+                if (!player.Equals(source))
+                {
+                    player.TriggerEvent("CL:PlaySound", "panicButton", 1.0f);
+                    player.TriggerEvent("CL:Notify", message, "Assistentie Collega", meldkamer);
+
                 }
             }
 
@@ -113,17 +241,21 @@ namespace MOHPDServer
                 TimeSpan diff = Convert.ToDateTime(d).Subtract(mostRecentNoodknopTime);
                 if (diff.TotalSeconds <= 90)
                 {
-                    source.TriggerEvent("CL:NoodknopGPS", mostRecentNoodknop);
+                    source.TriggerEvent("CL:SetGPS", mostRecentNoodknop);
                     return;
                 }
             }
+
             source.TriggerEvent("CL:Notify", "Er is momenteel geen noodknop actief!", "Assistentie Collega",
-                    TEAMHOOFDWEGENRP);
+                TEAMHOOFDWEGENRP);
         }
 
         private void OnPlayerDropped([FromSource] Player player, string reason)
         {
-            if (policeDao.Contains(player)) policeDao.Remove(player);
+            if (polRepository.Contains(player)) polRepository.Remove(player);
+            if (kmarRepository.Contains(player)) polRepository.Remove(player);
+            if (brwRepository.Contains(player)) polRepository.Remove(player);
+            if (ambuRepository.Contains(player)) polRepository.Remove(player);
         }
     }
 }

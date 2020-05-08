@@ -24,8 +24,8 @@ namespace MOHPDClient
             
             EventHandlers["onClientResourceStart"] += new Action<string>(OnClientResourceStart);
             EventHandlers["CL:Notify"] += new Action<string, string, string>(Common.Notify);
-            EventHandlers["CL:PlaySound"] += new Action<string, double>(playSound);
-            EventHandlers["CL:NoodknopGPS"] += new Action<Vector3>(Common.NoodknopGPS);
+            EventHandlers["CL:PlaySound"] += new Action<string, double>(Common.playSound);
+            EventHandlers["CL:SetGPS"] += new Action<Vector3>(Common.SetGPS);
             EventHandlers["CL:SpawmVehicle"] += new Action<string>(doSpawnVehicle);
             Tick += OnTick;
         }
@@ -57,11 +57,6 @@ namespace MOHPDClient
         private void doSpawnVehicle(string model)
         {
             Common.spawnVehicle(model);
-        }
-
-        private void playSound(string file, double vol)
-        {
-            TriggerEvent("Client:SoundToClient", file, vol);
         }
     }
 }

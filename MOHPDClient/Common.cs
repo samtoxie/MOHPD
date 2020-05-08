@@ -14,7 +14,7 @@ namespace MOHPDClient
         public static bool blipEnabled = false;
         public static int blip = 0;
         
-        public static  void NoodknopGPS(Vector3 v)
+        public static  void SetGPS(Vector3 v)
         {
             blip = AddBlipForCoord(v.X, v.Y, v.Z);
             SetBlipColour(blip, 58);
@@ -54,6 +54,11 @@ namespace MOHPDClient
 
             // set the player ped into the vehicle and driver seat
             Game.PlayerPed.SetIntoVehicle(vehicle, VehicleSeat.Driver);
+        }
+        
+        public static void playSound(string file, double vol)
+        {
+            TriggerEvent("Client:SoundToClient", file, vol);
         }
     }
 }
