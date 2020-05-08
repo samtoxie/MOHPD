@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common.cs" />
+    <Compile Include="F5Menu.cs" />
     <Compile Include="MOHPDClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
