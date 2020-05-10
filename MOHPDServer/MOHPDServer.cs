@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MOHPDServer.Callouts;
-using MOHPDServer.Data;
 
 namespace MOHPDServer
 {
@@ -24,6 +23,8 @@ namespace MOHPDServer
         private static ArrayList kmarRepository = new ArrayList();
         private static ArrayList brwRepository = new ArrayList();
         private static ArrayList ambuRepository = new ArrayList();
+        private static ArrayList beschikbaar = new ArrayList();
+        
 
         public static int[] dispatchColors = new[] {52, 113, 235};
         private static string dispatchText = "[Meldkamer POL]";
@@ -39,6 +40,7 @@ namespace MOHPDServer
             EventHandlers["SV:NoodknopIngedrukt"] += new Action<Player, Vector3>(SvNoodknopIngedrukt);
             EventHandlers["SV:GetNoodknopIngedrukt"] += new Action<Player, string>(SvGetNoodknopIngedrukt);
             EventHandlers["SV:Backup"] += new Action<Player,int,int>(SvBackup);
+            EventHandlers["SV:UpdateBeschikbaar"] += new Action<Player>(SvUpdateBeschikbaar);
             EventHandlers["playerDropped"] += new Action<Player, string>(OnPlayerDropped);
             Tick += OnTick;
         }
@@ -107,12 +109,22 @@ namespace MOHPDServer
         {
             await Delay(100);
         }
+        
+        private void SvUpdateBeschikbaar([FromSource] Player player)
+        {
+            if (beschikbaar.Contains(player)) beschikbaar.Remove(player);
+            else beschikbaar.Add(player);
+            string status = beschikbaar.Contains(player) ? "beschikbaar" : "niet beschikbaar";
+            player.TriggerEvent("CL:Notify", $"Je bent nu {status} voor meldingen.", TEAMHOOFDWEGENRP,
+                GIERIGENARROGANT);
+        }
 
         private void SvVTB([FromSource] Player source)
         {
             Callout newCallout = new VTB();
             foreach (Player player in polRepository)
             {
+                if (!beschikbaar.Contains(player)) continue;
                 player.TriggerEvent("CL:Notify", newCallout.GetCalloutNotification(), MELDING_VTB, TEAMHOOFDWEGENRP);
                 player.TriggerEvent("CL:PlaySound", "meldingVTB", 1.0f);
             }
@@ -145,14 +157,14 @@ namespace MOHPDServer
             else
             {
                 prio = $"P{prioriteit} Assistentie {DISCIPLINES[vragendeDienst]}";
-                message = $"De ${DISCIPLINES[vragendeDienst]} vraagt om assistentie van de {DISCIPLINES[gevraagdeDienst]} met prioriteit {prioriteit}, graag aanrijden naar ${source.Name}.";
+                message = $"De {DISCIPLINES[vragendeDienst]} vraagt om assistentie van de {DISCIPLINES[gevraagdeDienst]}, graag P{prioriteit} aanrijden naar {source.Name}.";
             }
             switch (gevraagdeDienst)
             {
                 case 0:
                     foreach (Player player in polRepository)
                     {
-                        if (!player.Equals(source))
+                        if (!player.Equals(source) && beschikbaar.Contains(player))
                         {
                             player.TriggerEvent("CL:Notify", message, meldkamer, prio);
                         }
@@ -161,7 +173,7 @@ namespace MOHPDServer
                 case 1:
                     foreach (Player player in kmarRepository)
                     {
-                        if (!player.Equals(source))
+                        if (!player.Equals(source) && beschikbaar.Contains(player))
                         {
                             player.TriggerEvent("CL:Notify", message, meldkamer, prio);
                         }
@@ -170,7 +182,7 @@ namespace MOHPDServer
                 case 2:
                     foreach (Player player in brwRepository)
                     {
-                        if (!player.Equals(source))
+                        if (!player.Equals(source) && beschikbaar.Contains(player))
                         {
                             player.TriggerEvent("CL:Notify", message, meldkamer, prio);
                         }
@@ -179,7 +191,7 @@ namespace MOHPDServer
                 case 3:
                     foreach (Player player in ambuRepository)
                     {
-                        if (!player.Equals(source))
+                        if (!player.Equals(source) && beschikbaar.Contains(player))
                         {
                             player.TriggerEvent("CL:Notify", message, meldkamer, prio);
                         }

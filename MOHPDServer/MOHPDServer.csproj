@@ -46,9 +46,12 @@
   <ItemGroup>
     <Compile Include="Callouts\Callout.cs" />
     <Compile Include="Callouts\VTB.cs" />
-    <Compile Include="Data\PoliceDAO.cs" />
     <Compile Include="MOHPDServer.cs" />
+    <Compile Include="Players\Hulpverlener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

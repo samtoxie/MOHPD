@@ -26,6 +26,7 @@ namespace MOHPDClient
         private MenuItem calloutsMenuButton;
         private MenuItem voertuigenMenuButton;
         private MenuItem noodknop;
+        private MenuCheckboxItem beschikbaar;
 
         private Menu calloutsMenu;
         private MenuItem startVTB;
@@ -59,6 +60,7 @@ namespace MOHPDClient
             noodknop = new MenuItem("",
                     "Alleen gebruiken in geval van nood, stuurt een signaal naar alle collega's!")
                 {LeftIcon = MenuItem.Icon.WARNING, Label = "~r~Noodknop"};
+            beschikbaar = new MenuCheckboxItem("Beschikbaar", "Vink dit aan als je beschikbaar bent voor meldingen.", false);
             
             calloutsMenu = new Menu("Meldingen", GIERIGENARROGANT);
             startVTB = new MenuItem("VTB");
@@ -115,8 +117,17 @@ namespace MOHPDClient
             spoedBackupMenu.OnItemSelect += (menu, item, index) => ItemSelected(menu, item, index);
             menu.OnListItemSelect += (menu, listItem, listIndex, itemIndex) =>
                 ItemSelected(menu, listItem, listIndex, itemIndex);
+            menu.OnCheckboxChange += (menu, item, index, _checked) => checkboxChanged(menu, item, index, _checked);
             
             MenuController.MenuAlignment = MenuController.MenuAlignmentOption.Right;
+        }
+
+        private void checkboxChanged(Menu menu1, MenuCheckboxItem menuItem, int itemIndex, bool newCheckedState)
+        {
+            if (menuItem == beschikbaar)
+            {
+                TriggerServerEvent("SV:UpdateBeschikbaar");
+            }
         }
 
         private void ItemSelected(Menu menu, MenuItem listItem, int listIndex, int itemIndex)
@@ -160,7 +171,8 @@ namespace MOHPDClient
                 else if (item == noodknop)
                 {
                     TriggerServerEvent("SV:NoodknopIngedrukt", Game.Player.Character.Position);
-                } else if (item == startVTB)
+                } 
+                else if (item == startVTB)
                 {
                     TriggerServerEvent("SV:VTB");
                     TriggerServerEvent("SV:Discord");
@@ -256,6 +268,7 @@ namespace MOHPDClient
                 case 0:
                     menu.AddMenuItem(calloutsMenuButton);
                     menu.AddMenuItem(voertuigenMenuButton);
+                    menu.AddMenuItem(beschikbaar);
                     menu.AddMenuItem(backupMenuItem);
                     menu.AddMenuItem(spoedBackupMenuItem);
                     menu.AddMenuItem(noodknop);
@@ -272,6 +285,7 @@ namespace MOHPDClient
                     break;
                 case 1:
                     menu.AddMenuItem(voertuigenMenuButton);
+                    menu.AddMenuItem(beschikbaar);
                     menu.AddMenuItem(backupMenuItem);
                     menu.AddMenuItem(spoedBackupMenuItem);
                     menu.AddMenuItem(noodknop);
