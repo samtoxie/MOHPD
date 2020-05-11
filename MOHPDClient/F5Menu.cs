@@ -5,6 +5,7 @@ using System.IO;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using MenuAPI;
+using MOHPDServer.Callouts;
 using static CitizenFX.Core.Native.API;
 
 namespace MOHPDClient
@@ -30,6 +31,8 @@ namespace MOHPDClient
 
         private Menu calloutsMenu;
         private MenuItem startVTB;
+        private MenuItem startAutobrand;
+        
         private Menu voertuigenMenu;
         
         private Menu spoedBackupMenu;
@@ -64,7 +67,8 @@ namespace MOHPDClient
             
             calloutsMenu = new Menu("Meldingen", GIERIGENARROGANT);
             startVTB = new MenuItem("VTB");
-            
+            startAutobrand = new MenuItem("Autobrand");
+
             voertuigenMenu = new Menu("Voertuigen", GIERIGENARROGANT);
             vehicleModels = new ArrayList();
             vehicles = new ArrayList();
@@ -104,6 +108,7 @@ namespace MOHPDClient
             menu.AddMenuItem(discord);
             
             calloutsMenu.AddMenuItem(startVTB);
+            calloutsMenu.AddMenuItem(startAutobrand);
             
             foreach (MenuItem car in vehicles)
             {
@@ -171,11 +176,6 @@ namespace MOHPDClient
                 else if (item == noodknop)
                 {
                     TriggerServerEvent("SV:NoodknopIngedrukt", Game.Player.Character.Position);
-                } 
-                else if (item == startVTB)
-                {
-                    TriggerServerEvent("SV:VTB");
-                    TriggerServerEvent("SV:Discord");
                 }
             }
             else if (menu.Equals(calloutsMenu))
@@ -184,6 +184,12 @@ namespace MOHPDClient
                 {
                     TriggerServerEvent("SV:VTB");
                 }
+                else if (item == startAutobrand)
+                {
+                    Autobrand melding = new Autobrand();
+                    Common.SetGPS(melding.Locatie);
+                    Common.Notify("Autobrand", TEAMHOOFDWEGENRP, GIERIGENARROGANT);
+                }
             }
             else if (menu.Equals(voertuigenMenu))
             {
@@ -191,7 +197,7 @@ namespace MOHPDClient
                 {
                     if (item == m)
                     {
-                        Common.spawnVehicle(vehicleModels[m.Index] as string);
+                        Common.spawnVehicle(vehicleModels[m.Index] as string, true);
                     }
                 }
             }

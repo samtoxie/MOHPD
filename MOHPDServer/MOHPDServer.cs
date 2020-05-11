@@ -211,12 +211,12 @@ namespace MOHPDServer
             string message = " ";
             string meldkamer = " ";
 
-            if (!polRepository.Contains(source))
+            if (polRepository.Contains(source))
             {
                 message = "~r~Noodknop POL ingedrukt~n~~s~Gebruik /noodknop om de gps in te stellen!";
                 meldkamer = "Meldkamer POL";
             }
-            else if (!kmarRepository.Contains(source))
+            else if (kmarRepository.Contains(source))
             {
                 message = "~r~Noodknop KMAR ingedrukt~n~~s~Gebruik /noodknop om de gps in te stellen!"; 
                 meldkamer = "Meldkamer KMAR";

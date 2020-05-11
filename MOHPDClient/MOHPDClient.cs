@@ -26,7 +26,7 @@ namespace MOHPDClient
             EventHandlers["CL:Notify"] += new Action<string, string, string>(Common.Notify);
             EventHandlers["CL:PlaySound"] += new Action<string, double>(Common.playSound);
             EventHandlers["CL:SetGPS"] += new Action<Vector3>(Common.SetGPS);
-            EventHandlers["CL:SpawmVehicle"] += new Action<string>(doSpawnVehicle);
+            EventHandlers["CL:SpawnVehicle"] += new Action<string,bool>(doSpawnVehicle);
             Tick += OnTick;
         }
         
@@ -54,9 +54,9 @@ namespace MOHPDClient
             await Delay(100);
         }
 
-        private void doSpawnVehicle(string model)
+        private void doSpawnVehicle(string model, bool deletePreviousVehicle)
         {
-            Common.spawnVehicle(model);
+            Common.spawnVehicle(model, deletePreviousVehicle);
         }
     }
 }

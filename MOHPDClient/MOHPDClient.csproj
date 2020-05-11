@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Callouts\Autobrand.cs" />
+    <Compile Include="Callouts\Callout.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="F5Menu.cs" />
     <Compile Include="MOHPDClient.cs" />
