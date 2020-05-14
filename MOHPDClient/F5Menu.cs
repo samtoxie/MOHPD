@@ -5,7 +5,9 @@ using System.IO;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using MenuAPI;
-using MOHPDServer.Callouts;
+using MOHPDClient.Callouts;
+using MOHPDClient.Commons;
+using MOHPDServer;
 using static CitizenFX.Core.Native.API;
 
 namespace MOHPDClient
@@ -28,6 +30,7 @@ namespace MOHPDClient
         private MenuItem voertuigenMenuButton;
         private MenuItem noodknop;
         private MenuCheckboxItem beschikbaar;
+        private bool beschikbaarBool;
 
         private Menu calloutsMenu;
         private MenuItem startVTB;
@@ -63,7 +66,8 @@ namespace MOHPDClient
             noodknop = new MenuItem("",
                     "Alleen gebruiken in geval van nood, stuurt een signaal naar alle collega's!")
                 {LeftIcon = MenuItem.Icon.WARNING, Label = "~r~Noodknop"};
-            beschikbaar = new MenuCheckboxItem("Beschikbaar", "Vink dit aan als je beschikbaar bent voor meldingen.", false);
+            beschikbaarBool = false;
+            beschikbaar = new MenuCheckboxItem("Beschikbaar", "Vink dit aan als je beschikbaar bent voor meldingen.", beschikbaarBool);
             
             calloutsMenu = new Menu("Meldingen", GIERIGENARROGANT);
             startVTB = new MenuItem("VTB");
@@ -131,6 +135,7 @@ namespace MOHPDClient
         {
             if (menuItem == beschikbaar)
             {
+                beschikbaarBool = !beschikbaarBool;
                 TriggerServerEvent("SV:UpdateBeschikbaar");
             }
         }
@@ -180,15 +185,20 @@ namespace MOHPDClient
             }
             else if (menu.Equals(calloutsMenu))
             {
-                if (item == startVTB)
+                if (!beschikbaarBool)
+                {
+                    Common.Notify("Je kunt alleen meldingen starten als je beschikbaar bent!", TEAMHOOFDWEGENRP, GIERIGENARROGANT);
+                }
+                else if (item == startVTB)
                 {
                     TriggerServerEvent("SV:VTB");
                 }
-                else if (item == startAutobrand)
+                else if (item.Equals(startAutobrand))
                 {
+                    // TriggerServerEvent("SV:VTB");
                     Autobrand melding = new Autobrand();
-                    Common.SetGPS(melding.Locatie);
-                    Common.Notify("Autobrand", TEAMHOOFDWEGENRP, GIERIGENARROGANT);
+                    melding.GetCallout();
+                    TriggerServerEvent("SV:Autobrand", melding.Locatie,melding.Adres);
                 }
             }
             else if (menu.Equals(voertuigenMenu))
@@ -244,7 +254,7 @@ namespace MOHPDClient
                 TriggerServerEvent("SV:Backup", dienst, 2);
             }
         }
-        
+
         private void LoadConfig()
         {
             StringReader strReader = new StringReader(config);

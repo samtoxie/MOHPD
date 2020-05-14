@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CitizenFX.Core;
-using CitizenFX.Core.Native;
 using static CitizenFX.Core.Native.API;
 
-namespace MOHPDClient
+namespace MOHPDClient.Commons
 {
     public class Common : BaseScript
     {
@@ -43,13 +41,13 @@ namespace MOHPDClient
             DrawNotification(true, false);
         }
         
-        public static async Task spawnVehicle(string model, bool deletePreviousVehicle)
+        public static async Task<Vehicle> spawnVehicle(string model, bool deletePreviousVehicle)
         {
             var hash = (uint) GetHashKey(model);
             if (!IsModelInCdimage(hash) || !IsModelAVehicle(hash))
             {
                 Common.Notify("Oeps! Dit voertuig bestaat helaas niet!", TEAMHOOFDWEGENRP, GIERIGENARROGANT);
-                return;
+                return null;
             }
 
             // create the vehicle
@@ -64,26 +62,41 @@ namespace MOHPDClient
             var vehicle = await World.CreateVehicle(model, Game.PlayerPed.Position, Game.PlayerPed.Heading);
 
             // set the player ped into the vehicle and driver seat
-            Game.PlayerPed.SetIntoVehicle(vehicle, VehicleSeat.Driver);
-        }
-
-        public static Vehicle spawnVehicleOnPosWithReturn(Vector3 pos, float heading)
-        {
-            Vehicle vehicle = World.CreateRandomVehicle(pos, heading);
+            if(deletePreviousVehicle) Game.PlayerPed.SetIntoVehicle(vehicle, VehicleSeat.Driver);
             return vehicle;
         }
-        
-        public static async Task spawnVehicleOnPos(string model, Vector3 pos, float heading)
+
+        public static async Task<int> spawnVehicleOnPos(string model, bool deletePreviousVehicle, Vector3 loc,
+            float heading)
         {
             var hash = (uint) GetHashKey(model);
             if (!IsModelInCdimage(hash) || !IsModelAVehicle(hash))
             {
                 Common.Notify("Oeps! Dit voertuig bestaat helaas niet!", TEAMHOOFDWEGENRP, GIERIGENARROGANT);
-                return;
+                return 0;
             }
-            var vehicle = await World.CreateVehicle(model, pos, heading);
+
+            // create the vehicle
+            try
+            {
+                if(deletePreviousVehicle) Game.PlayerPed.CurrentVehicle.Delete();
+            }
+            catch (Exception e)
+            {
+            }
+
+            RequestModel(hash);
+            while (!HasModelLoaded(hash))
+            {
+                await Delay(100);
+            }
+            var vehicle = CreateVehicle(hash, loc.X, loc.Y, loc.Z, heading, true,false);
+
+            // set the player ped into the vehicle and driver seat
+            if(deletePreviousVehicle) SetPedIntoVehicle(GetPlayerPed(-1), vehicle, -1);
+            return vehicle;
         }
-        
+
         public static void playSound(string file, double vol)
         {
             TriggerEvent("Client:SoundToClient", file, vol);

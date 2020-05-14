@@ -49,8 +49,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Callouts\Autobrand.cs" />
-    <Compile Include="Callouts\Callout.cs" />
-    <Compile Include="Common.cs" />
+    <Compile Include="Callouts\CalloutCL.cs" />
+    <Compile Include="Commons\Common.cs" />
+    <Compile Include="Commons\RoadsideLocations.cs" />
     <Compile Include="F5Menu.cs" />
     <Compile Include="MOHPDClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

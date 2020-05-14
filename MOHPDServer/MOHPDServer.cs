@@ -35,6 +35,7 @@ namespace MOHPDServer
         {
             EventHandlers["SV:Inmelden"] += new Action<Player, int>(SvInmelden);
             EventHandlers["SV:VTB"] += new Action<Player>(SvVTB);
+            EventHandlers["SV:Autobrand"] += new Action<Player, Vector3, string>(SvAutobrand);
             EventHandlers["SV:FluitjePls"] += new Action<Player>(SvFluitjePls);
             EventHandlers["SV:Discord"] += new Action<Player>(SvDiscord);
             EventHandlers["SV:NoodknopIngedrukt"] += new Action<Player, Vector3>(SvNoodknopIngedrukt);
@@ -43,6 +44,29 @@ namespace MOHPDServer
             EventHandlers["SV:UpdateBeschikbaar"] += new Action<Player>(SvUpdateBeschikbaar);
             EventHandlers["playerDropped"] += new Action<Player, string>(OnPlayerDropped);
             Tick += OnTick;
+        }
+
+        private void SvAutobrand([FromSource] Player player, Vector3 pos, string streetname)
+        {
+            DateTime dt = DateTime.Now;
+            foreach (Player p in brwRepository)
+            {
+                if (!beschikbaar.Contains(p)) continue;
+                p.TriggerEvent("CL:Notify", $"~r~Melding:~s~ Autobrand~n~~b~Locatie:~s~ {streetname}", "Meldkamer BRW",
+                    TEAMHOOFDWEGENRP);
+                p.TriggerEvent("CL:UpdateGPS",pos,dt);
+            }
+            
+            foreach (Player p in polRepository)
+            {
+                if (!beschikbaar.Contains(p)) continue;
+                p.TriggerEvent("CL:Notify", $"~r~Melding:~s~ Autobrand~n~~b~Locatie:~s~ {streetname}", "Meldkamer POL",
+                    TEAMHOOFDWEGENRP);
+                p.TriggerEvent("CL:UpdateGPS",pos,dt.ToBinary());
+                // p.TriggerEvent("CL:Notify", $"{pos.ToString()}", "Meldkamer BRW",
+                     // TEAMHOOFDWEGENRP);
+            }
+            
         }
 
         private void SvFluitjePls([FromSource] Player player)
